@@ -5,6 +5,7 @@ import moment from 'moment'
 import GitHubAuth from "./auth/GitHubAuth";
 import GitHubUsernameInput from './GitHubUsernameInput/GitHubUsernameInput';
 import ErrorContainer from "./ErrorContainer/ErrorContainer";
+import UserInfo from "./UserInfo/UserInfo";
 
 class App extends React.Component {
   constructor() {
@@ -60,7 +61,6 @@ class App extends React.Component {
     let userCheckPromise = this.doGraphQlQuery( query )
 
     userCheckPromise.then((responseRaw) => {
-      console.log(responseRaw);
       if (this.rateLimitExceeded(responseRaw.headers)) {
         this.setState({ errorMessage: this.getRateLimitReason(responseRaw.headers), isFetchingUser: false, userdata: null })
         return;
@@ -78,8 +78,8 @@ class App extends React.Component {
         return;
       }
       responseRaw.json().then((userResponse) => {
-        this.setState({ isFetchingUser: false })
-        console.log(userResponse);
+        this.setState({ isFetchingUser: false, userdata: userResponse.data.user })
+        console.log(this.state.userdata)
       })
     })
   }
@@ -122,11 +122,14 @@ class App extends React.Component {
           <GitHubUsernameInput fetchUserInfo={this.fetchUserInfo} isFetchingUser={this.state.isFetchingUser} />
 
           <div className="col-xl-8 col-lg-10 text-center">
-            <ErrorContainer errorMessage={this.state.errorMessage}/>
-            <p>
-              Since the <a href="https://developer.github.com/v4/guides/resource-limitations/">GitHub API rate limits</a> are pretty low for unauthorized requests should sign in with your GitHub account first.
-              The Authorization only grants this website to request data which is already public anyway. So, no worries!
-            </p>
+            { this.state.errorMessage !== '' ? <ErrorContainer errorMessage={this.state.errorMessage}/> : null }
+            { ! this.state.accessToken ?
+              <p>
+                Since the <a href="https://developer.github.com/v4/guides/resource-limitations/">GitHub API rate limits</a> are pretty low for unauthorized requests should sign in with your GitHub account first.
+                The Authorization only grants this website to request data which is already public anyway. So, no worries!
+              </p>
+              : null }
+            <UserInfo userdata={this.state.userdata} isLoading={this.state.isFetchingUser} />
           </div>
         </div>
       </div>
