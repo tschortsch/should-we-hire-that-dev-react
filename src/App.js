@@ -6,6 +6,7 @@ import GitHubAuth from "./auth/GitHubAuth";
 import GitHubUsernameInput from './GitHubUsernameInput/GitHubUsernameInput';
 import ErrorContainer from "./ErrorContainer/ErrorContainer";
 import UserInfo from "./UserInfo/UserInfo";
+import Statistics from './Statistics/Statistics'
 
 class App extends React.Component {
   constructor() {
@@ -130,6 +131,10 @@ class App extends React.Component {
               </p>
               : null }
             <UserInfo userdata={this.state.userdata} isLoading={this.state.isFetchingUser} />
+            { this.state.userdata && ! this.state.isFetchingUser ?
+              <Statistics userdata={this.state.userdata} />
+              : null
+            }
           </div>
         </div>
       </div>
