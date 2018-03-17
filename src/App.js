@@ -15,6 +15,7 @@ class App extends React.Component {
       accessToken: window.localStorage.getItem('swhtd-gh-access-token'),
       isFetchingUser: false,
       userdata: null,
+      commitsTotalCount: 0,
       errorMessage: '',
     }
   }
@@ -79,8 +80,28 @@ class App extends React.Component {
         return;
       }
       responseRaw.json().then((userResponse) => {
-        this.setState({ isFetchingUser: false, userdata: userResponse.data.user })
+        this.setState({ userdata: userResponse.data.user })
         console.log(this.state.userdata)
+
+        // TODO replace with graphql query
+        let fetchCommitsPromise = new Promise((resolve, reject) => {
+          this.fetchCommits(username).then(commitsResponseRaw => {
+            if(this.rateLimitExceeded(commitsResponseRaw.headers)) {
+              reject(new Error(this.getRateLimitReason(commitsResponseRaw.headers)));
+            }
+            commitsResponseRaw.json().then(commitsResponse => {
+              this.setState({ commitsTotalCount: commitsResponse.total_count })
+              resolve();
+            });
+          });
+        }).catch(reason => {
+          this.setState({ errorMessage: reason })
+        });
+
+        fetchCommitsPromise.then(() => {
+          //fillRankingContainer(rankingContainer, overallRanking, maxRanking);
+          this.setState({ isFetchingUser: false })
+        });
       })
     })
   }
@@ -93,6 +114,18 @@ class App extends React.Component {
       headers: new Headers({
         'Authorization': 'bearer ' + this.state.accessToken
       })
+    });
+  }
+
+  fetchCommits = (username) => {
+    let commitQueryUrl = 'https://api.github.com/search/commits?q=author:' + username + '&sort=author-date&order=desc&per_page=1';
+    if(this.state.accessToken) {
+      commitQueryUrl += '&access_token=' + this.state.accessToken;
+    }
+    return fetch(commitQueryUrl, {
+      headers: {
+        'Accept': 'application/vnd.github.cloak-preview'
+      }
     });
   }
 
@@ -132,7 +165,7 @@ class App extends React.Component {
               : null }
             <UserInfo userdata={this.state.userdata} isLoading={this.state.isFetchingUser} />
             { this.state.userdata && ! this.state.isFetchingUser ?
-              <Statistics userdata={this.state.userdata} />
+              <Statistics userdata={this.state.userdata} commitsTotalCount={this.state.commitsTotalCount} />
               : null
             }
           </div>

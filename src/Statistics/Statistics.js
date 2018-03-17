@@ -3,7 +3,7 @@ import moment from 'moment'
 import StatisticsBox from './StatisticsBox'
 import './Statistics.scss'
 
-const Statistics = ({userdata}) => {
+const Statistics = ({userdata, commitsTotalCount}) => {
   const judgementLimits = {
     'commits': new Map([
       [100, 10000],
@@ -101,6 +101,8 @@ const Statistics = ({userdata}) => {
     <div className="row statistics justify-content-center">
       <StatisticsBox title="User since" value={createdAtMoment.fromNow()} additionalValue={createdAtMoment.format('(DD.MM.YYYY)')} ranking={getJudgement('user-since', createdAtRawValue)}/>
       <StatisticsBox title="Followers" value={userdata.followers.totalCount} ranking={getJudgement('followers', userdata.followers.totalCount)}/>
+      <StatisticsBox title="Total commits" value={commitsTotalCount} ranking={getJudgement('commits', commitsTotalCount)}/>
+
     </div>
   )
 }
