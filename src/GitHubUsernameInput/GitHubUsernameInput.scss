@@ -1,0 +1,50 @@
+@import "~bootstrap/scss/functions";
+@import "../bootstrap/variables";
+@import "~bootstrap/scss/mixins";
+
+.question {
+  font-size: $h1-font-size;
+  flex: 1;
+
+  @include media-breakpoint-up(md) {
+    display: flex;
+  }
+
+  > .flex-item {
+    @include media-breakpoint-up(md) {
+      flex: 1;
+    }
+  }
+
+  .label {
+    margin-right: 0.7rem;
+
+    @include media-breakpoint-up(md) {
+      text-align: right;
+    }
+  }
+
+  .username-input-wrapper {
+    display: flex;
+    align-items: baseline;
+
+    .questionmark {
+      margin-left: 0.7rem;
+    }
+  }
+
+  .form-text {
+    font-size: $font-size-sm;
+  }
+
+  #username {
+    border: none;
+    border-bottom: solid $body-color 3px;
+    border-radius: 0;
+    font-size: $h1-font-size;
+    padding: 0;
+    line-height: $line-height-base;
+    color: $body-color;
+    width: 100%;
+  }
+}
