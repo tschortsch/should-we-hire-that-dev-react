@@ -74,6 +74,10 @@ const Statistics = ({userdata, commitsTotalCount}) => {
   const createdAtTimestamp = createdAtMoment.unix();
   const currentTimestamp = moment().unix();
   const createdAtRawValue = currentTimestamp - createdAtTimestamp
+  let starsCount = 0;
+  userdata.repositories.nodes.forEach(repo => {
+    starsCount += repo.stargazers.totalCount;
+  });
 
   const getRanking = (type, value, rawValue) => {
     if(typeof rawValue === 'undefined') {
@@ -102,7 +106,8 @@ const Statistics = ({userdata, commitsTotalCount}) => {
       <StatisticsBox title="User since" value={createdAtMoment.fromNow()} additionalValue={createdAtMoment.format('(DD.MM.YYYY)')} ranking={getJudgement('user-since', createdAtRawValue)}/>
       <StatisticsBox title="Followers" value={userdata.followers.totalCount} ranking={getJudgement('followers', userdata.followers.totalCount)}/>
       <StatisticsBox title="Total commits" value={commitsTotalCount} ranking={getJudgement('commits', commitsTotalCount)}/>
-
+      <StatisticsBox title="Public repos" value={userdata.repositories.totalCount} ranking={getJudgement('repos', userdata.repositories.totalCount)}/>
+      <StatisticsBox title="Stars" value={starsCount} ranking={getJudgement('stars', starsCount)}/>
     </div>
   )
 }
