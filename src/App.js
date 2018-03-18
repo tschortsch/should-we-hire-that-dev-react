@@ -1,6 +1,7 @@
 import React from 'react';
 import './bootstrap/bootstrap.scss'
 import moment from 'moment'
+import { withRouter } from 'react-router-dom'
 import GitHubAuth from "./auth/GitHubAuth";
 import GitHubUsernameInput from './GitHubUsernameInput/GitHubUsernameInput';
 import ErrorContainer from "./ErrorContainer/ErrorContainer";
@@ -8,7 +9,7 @@ import UserInfo from "./UserInfo/UserInfo";
 import Statistics from './Statistics/Statistics'
 
 class App extends React.Component {
-  constructor() {
+  constructor({ match }) {
     super()
     this.state = {
       accessToken: window.localStorage.getItem('swhtd-gh-access-token'),
@@ -16,6 +17,20 @@ class App extends React.Component {
       userdata: null,
       commitsTotalCount: null,
       errorMessage: '',
+      username: match.params.username
+    }
+  }
+
+  componentDidMount() {
+    if ( this.state.username && this.state.username !== '' ) {
+      this.fetchUserInfo(this.state.username)
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // handle route change
+    if ( nextProps.match.params.username !== this.props.match.params.username ) {
+      this.fetchUserInfo(nextProps.match.params.username)
     }
   }
 
@@ -152,7 +167,7 @@ class App extends React.Component {
         <div className="container my-5">
           <div className="row justify-content-center">
             <GitHubAuth accessToken={this.state.accessToken} />
-            <GitHubUsernameInput fetchUserInfo={this.fetchUserInfo} isLoading={this.state.isLoading} />
+            <GitHubUsernameInput isLoading={this.state.isLoading} />
 
             <div className="col-xl-8 col-lg-10 text-center">
               { this.state.errorMessage !== '' ? <ErrorContainer errorMessage={this.state.errorMessage}/> : null }
@@ -175,4 +190,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default withRouter(App);

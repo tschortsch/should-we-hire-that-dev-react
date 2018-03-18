@@ -1,13 +1,14 @@
 import React from 'react'
+import { withRouter } from "react-router-dom";
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import { faGithub } from '@fortawesome/fontawesome-free-brands'
 import './GitHubUsernameInput.scss'
 
 class GitHubUsernameInput extends React.Component {
-  constructor() {
+  constructor({ match }) {
     super()
     this.state = {
-      username: ''
+      username: match.params.username
     }
   }
 
@@ -20,7 +21,7 @@ class GitHubUsernameInput extends React.Component {
 
   submitUsernameForm = (e) => {
     e.preventDefault()
-    this.props.fetchUserInfo(this.state.username)
+    this.props.history.push('/' + this.state.username)
   }
 
   render() {
@@ -50,4 +51,4 @@ class GitHubUsernameInput extends React.Component {
   }
 }
 
-export default GitHubUsernameInput
+export default withRouter(GitHubUsernameInput)
