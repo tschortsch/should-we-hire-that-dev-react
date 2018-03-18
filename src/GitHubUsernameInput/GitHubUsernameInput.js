@@ -1,4 +1,6 @@
 import React from 'react'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import { faGithub } from '@fortawesome/fontawesome-free-brands'
 import './GitHubUsernameInput.scss'
 
 class GitHubUsernameInput extends React.Component {
@@ -38,7 +40,7 @@ class GitHubUsernameInput extends React.Component {
                   />
                   <div className="questionmark">?</div>
                 </div>
-                <p className="form-text text-muted">Enter GitHub <i className="fab fa-github" aria-hidden="true"></i> username</p>
+                <p className="form-text text-muted">Enter GitHub <FontAwesomeIcon icon={faGithub}/> username</p>
               </div>
             </div>
           </div>
