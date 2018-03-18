@@ -10,9 +10,6 @@
     font-size: $h1-font-size;
     margin-bottom: 0;
   }
-  p#user-since-date {
-    font-size: $font-size-base;
-  }
 }
 
 @function get-rank-color($rank) {
