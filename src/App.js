@@ -35,7 +35,7 @@ class App extends React.Component {
   }
 
   fetchUserInfo = (username) => {
-    this.setState({ isLoading: true, userdata: null })
+    this.setState({ isLoading: true, userdata: null, errorMessage: '' })
     const query = `
     query {
         user(login: "${username}") {
@@ -78,7 +78,7 @@ class App extends React.Component {
 
     userCheckPromise.then((responseRaw) => {
       if (this.rateLimitExceeded(responseRaw.headers)) {
-        this.setState({ errorMessage: this.getRateLimitReason(responseRaw.headers), isLoading: false, userdata: null })
+        this.setState({ errorMessage: this.getRateLimitReason(responseRaw.headers), isLoading: false, userdata: null, commitsTotalCount: null })
         return;
       }
       if (!responseRaw.ok) {
@@ -94,6 +94,10 @@ class App extends React.Component {
         return;
       }
       responseRaw.json().then((userResponse) => {
+        if(userResponse.errors) {
+          this.setState({ errorMessage: userResponse.errors[0].message, isLoading: false, userdata: null, commitsTotalCount: null })
+          return;
+        }
         this.setState({ userdata: userResponse.data.user })
         console.log(this.state.userdata)
 
@@ -109,7 +113,7 @@ class App extends React.Component {
             });
           });
         }).catch(reason => {
-          this.setState({ errorMessage: reason })
+          this.setState({ errorMessage: reason, userdata: null, commitsTotalCount: null })
         });
 
         fetchCommitsPromise.then(() => {
