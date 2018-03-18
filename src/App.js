@@ -13,7 +13,7 @@ class App extends React.Component {
     super()
     this.state = {
       accessToken: window.localStorage.getItem('swhtd-gh-access-token'),
-      isFetchingUser: false,
+      isLoading: false,
       userdata: null,
       commitsTotalCount: 0,
       errorMessage: '',
@@ -21,7 +21,7 @@ class App extends React.Component {
   }
 
   fetchUserInfo = (username) => {
-    this.setState({ isFetchingUser: true })
+    this.setState({ isLoading: true })
     const query = `
     query {
         user(login: "${username}") {
@@ -64,7 +64,7 @@ class App extends React.Component {
 
     userCheckPromise.then((responseRaw) => {
       if (this.rateLimitExceeded(responseRaw.headers)) {
-        this.setState({ errorMessage: this.getRateLimitReason(responseRaw.headers), isFetchingUser: false, userdata: null })
+        this.setState({ errorMessage: this.getRateLimitReason(responseRaw.headers), isLoading: false, userdata: null })
         return;
       }
       if (!responseRaw.ok) {
@@ -76,7 +76,7 @@ class App extends React.Component {
         } else {
           this.setState({ errorMessage: 'Something went wrong!' })
         }
-        this.setState({ isFetchingUser: false, userdata: null })
+        this.setState({ isLoading: false, userdata: null })
         return;
       }
       responseRaw.json().then((userResponse) => {
@@ -100,7 +100,7 @@ class App extends React.Component {
 
         fetchCommitsPromise.then(() => {
           //fillRankingContainer(rankingContainer, overallRanking, maxRanking);
-          this.setState({ isFetchingUser: false })
+          this.setState({ isLoading: false })
         });
       })
     })
@@ -153,7 +153,7 @@ class App extends React.Component {
       <div className="App container">
         <div className="row justify-content-center">
           <GitHubAuth accessToken={this.state.accessToken} />
-          <GitHubUsernameInput fetchUserInfo={this.fetchUserInfo} isFetchingUser={this.state.isFetchingUser} />
+          <GitHubUsernameInput fetchUserInfo={this.fetchUserInfo} isLoading={this.state.isLoading} />
 
           <div className="col-xl-8 col-lg-10 text-center">
             { this.state.errorMessage !== '' ? <ErrorContainer errorMessage={this.state.errorMessage}/> : null }
@@ -163,9 +163,9 @@ class App extends React.Component {
                 The Authorization only grants this website to request data which is already public anyway. So, no worries!
               </p>
               : null }
-            <UserInfo userdata={this.state.userdata} isLoading={this.state.isFetchingUser} />
-            { this.state.userdata && ! this.state.isFetchingUser ?
-              <Statistics userdata={this.state.userdata} commitsTotalCount={this.state.commitsTotalCount} />
+            <UserInfo userdata={this.state.userdata} isLoading={this.state.isLoading} />
+            { this.state.userdata || this.state.isLoading ?
+              <Statistics userdata={this.state.userdata} isLoading={this.state.isLoading} commitsTotalCount={this.state.commitsTotalCount} />
               : null
             }
           </div>

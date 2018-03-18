@@ -24,7 +24,7 @@ class GitHubUsernameInput extends React.Component {
   render() {
     return (
       <div className="col-xl-8 col-lg-10">
-        <form className="form-inline mb-1" onSubmit={ ! this.props.isFetchingUser ? this.submitUsernameForm : e => e.preventDefault() }>
+        <form className="form-inline mb-1" onSubmit={ ! this.props.isLoading ? this.submitUsernameForm : e => e.preventDefault() }>
           <div className="form-group">
             <div className="question">
               <div className="label flex-item">Should we hire</div>
@@ -34,7 +34,7 @@ class GitHubUsernameInput extends React.Component {
                   <input type="search" name="username" id="username" className="form-control" placeholder="that dev"
                          value={this.state.username}
                          onChange={this.handleUsernameChange}
-                         disabled={this.props.isFetchingUser}
+                         disabled={this.props.isLoading}
                   />
                   <div className="questionmark">?</div>
                 </div>
