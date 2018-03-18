@@ -4,7 +4,7 @@ import { faMapMarkerAlt } from '@fortawesome/fontawesome-free-solid'
 import './UserInfo.scss'
 
 const UserInfo = ({userdata, isLoading}) => (
-  <div id="avatar-container" className="buffer-bottom">
+  <div id="avatar-container" className="mb-4">
     <div id="loading-container" className={ isLoading ? 'loading' : '' }></div>
     { userdata && ! isLoading ?
       <div>

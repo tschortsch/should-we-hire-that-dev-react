@@ -6,7 +6,7 @@ const StatisticsBox = ({ title, value, additionalValue = '', ranking }) => (
     <h3>{title}</h3>
     <p className="value">
       { Number.isInteger(value) ?
-        <CountUp start={0} end={value}/>
+        <CountUp start={0} end={value} duration={2.5} />
         : value
       }
     </p>

@@ -10,9 +10,9 @@ const OverallRanking = ({ title, value, maxRanking = 0 }) => {
   }
 
   return (
-    <div className={`col-md-8 col-10 ${ ranking > 0 ? 'rank-' + ranking : ''  }`}>
+    <div className={`col-md-8 col-10 mb-5 ${ ranking > 0 ? 'rank-' + ranking : ''  }`}>
       <h3>{title}</h3>
-      <p className="value"><CountUp start={0} end={value}/> / {maxRanking}</p>
+      <p className="value"><CountUp start={0} end={value} duration={2.5} /> / {maxRanking}</p>
       <div className="progress">
         <div className="progress-bar" role="progressbar" style={{ width: rankingPercent + '%' }} aria-valuenow={rankingPercent}
              aria-valuemin="0" aria-valuemax="100"></div>
