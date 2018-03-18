@@ -3,7 +3,7 @@ import moment from 'moment'
 import StatisticsBox from './StatisticsBox'
 import './Statistics.scss'
 
-const Statistics = ({userdata, isLoading, commitsTotalCount}) => {
+const Statistics = ({userdata, commitsTotalCount}) => {
   const judgementLimits = {
     'commits': new Map([
       [100, 10000],

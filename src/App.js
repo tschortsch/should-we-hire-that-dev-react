@@ -165,7 +165,7 @@ class App extends React.Component {
               : null }
             <UserInfo userdata={this.state.userdata} isLoading={this.state.isLoading} />
             { this.state.userdata || this.state.isLoading ?
-              <Statistics userdata={this.state.userdata} isLoading={this.state.isLoading} commitsTotalCount={this.state.commitsTotalCount} />
+              <Statistics userdata={this.state.userdata} commitsTotalCount={this.state.commitsTotalCount} />
               : null
             }
           </div>
