@@ -42,8 +42,8 @@ class Statistics extends React.Component {
         }
       ],
       overallRanking: {
-        value: '-',
-        ranking: 0
+        value: 0,
+        maxValue: 0
       },
       repositoriesContributedTo: []
     }
@@ -189,15 +189,14 @@ class Statistics extends React.Component {
         })
 
         const repositoriesContributedTo = nextProps.userdata.repositoriesContributedTo.nodes
-        const overallRanking = this.getOverallRankingValue(newStatisticsValues)
+        const overallRankingValue = this.getOverallRankingValue(newStatisticsValues)
         const maxRanking = this.getMaxRanking(newStatisticsValues)
-        const overallRankingValue = Math.round( ( overallRanking * 100 / maxRanking ) / 10) * 10;
 
         this.setState({
           statisticsValues: newStatisticsValues,
           overallRanking: {
-            value: overallRanking + '/' + maxRanking,
-            ranking: overallRankingValue
+            value: overallRankingValue,
+            maxRanking: maxRanking
           },
           repositoriesContributedTo: repositoriesContributedTo
         })
@@ -217,8 +216,9 @@ class Statistics extends React.Component {
                            ranking={statisticsValue.ranking}
                            key={index} />
         ) ) }
-        <OverallRanking title="Overall ranking" value={this.state.overallRanking.value}
-                        ranking={this.state.overallRanking.ranking}/>
+        <OverallRanking title="Overall ranking"
+                        value={this.state.overallRanking.value}
+                        maxRanking={this.state.overallRanking.maxRanking}/>
       </div>
     )
   }
