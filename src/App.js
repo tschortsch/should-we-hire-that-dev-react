@@ -15,7 +15,7 @@ class App extends React.Component {
       accessToken: window.localStorage.getItem('swhtd-gh-access-token'),
       isLoading: false,
       userdata: null,
-      commitsTotalCount: 0,
+      commitsTotalCount: null,
       errorMessage: '',
     }
   }
@@ -99,7 +99,6 @@ class App extends React.Component {
         });
 
         fetchCommitsPromise.then(() => {
-          //fillRankingContainer(rankingContainer, overallRanking, maxRanking);
           this.setState({ isLoading: false })
         });
       })

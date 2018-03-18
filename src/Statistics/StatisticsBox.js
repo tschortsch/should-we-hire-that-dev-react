@@ -4,7 +4,12 @@ import CountUp from 'react-countup';
 const StatisticsBox = ({ title, value, additionalValue = '', ranking }) => (
   <div className={`col-md-6 mb-5 ${ ranking > 0 ? 'rank-' + ranking : ''  }`}>
     <h3>{title}</h3>
-    <p className="value"><CountUp start={0} end={value} /></p>
+    <p className="value">
+      { Number.isInteger(value) ?
+        <CountUp start={0} end={value}/>
+        : value
+      }
+    </p>
     {additionalValue !== '' ?
       <p>{additionalValue}</p>
       : null

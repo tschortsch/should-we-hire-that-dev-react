@@ -2,6 +2,7 @@ import React from 'react'
 import moment from 'moment'
 import StatisticsBox from './StatisticsBox'
 import OverallRanking from './OverallRanking'
+import LanguageStatistics from './LanguageStatistics'
 import './Statistics.scss'
 
 class Statistics extends React.Component {
@@ -43,7 +44,8 @@ class Statistics extends React.Component {
       overallRanking: {
         value: '-',
         ranking: 0
-      }
+      },
+      repositoriesContributedTo: []
     }
   }
 
@@ -121,13 +123,13 @@ class Statistics extends React.Component {
     ])
   };
 
-  getOverallRankingValue = () => {
-    return this.state.statisticsValues.reduce((rankingAccumulator, statisticsValue) => {
+  getOverallRankingValue = (statisticsValues) => {
+    return statisticsValues.reduce((rankingAccumulator, statisticsValue) => {
       return rankingAccumulator + statisticsValue.ranking
     }, 0)
   }
-  getMaxRanking = () => {
-    return 100 * this.state.statisticsValues.length
+  getMaxRanking = (statisticsValues) => {
+    return 100 * statisticsValues.length
   }
 
   getJudgement = (type, value) => {
@@ -143,53 +145,63 @@ class Statistics extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if ( nextProps.userdata && nextProps.commitsTotalCount ) {
-      const createdAt = new Date(nextProps.userdata.createdAt);
-      const createdAtMoment = moment(createdAt);
-      const createdAtTimestamp = createdAtMoment.unix();
-      const currentTimestamp = moment().unix();
-      const starsCount = nextProps.userdata.repositories.nodes.reduce((starsCount, repo) => {
-        return starsCount + repo.stargazers.totalCount;
-      }, 0)
-      const followersValue = nextProps.userdata.followers.totalCount
-      const commitsValue = nextProps.commitsTotalCount
-      const reposValue = nextProps.userdata.repositories.totalCount
+      if ( this.props.userdata !== nextProps.userdata || this.props.commitsTotalCount !== nextProps.commitsTotalCount ) {
+        let newStatisticsValues = []
+        const createdAt = new Date(nextProps.userdata.createdAt);
+        const createdAtMoment = moment(createdAt);
+        const createdAtTimestamp = createdAtMoment.unix();
+        const currentTimestamp = moment().unix();
+        newStatisticsValues.push({
+          name: 'createdAt',
+          value: createdAtMoment.fromNow(),
+          additionalValue: createdAtMoment.format('(DD.MM.YYYY)'),
+          ranking: this.getJudgement('createdAt', currentTimestamp - createdAtTimestamp)
+        })
 
-      const overallRankingValue = Math.round(this.getOverallRankingValue() * 100 / this.getMaxRanking() / 10) * 10;
+        const starsCount = nextProps.userdata.repositories.nodes.reduce((starsCount, repo) => {
+          return starsCount + repo.stargazers.totalCount;
+        }, 0)
+        newStatisticsValues.push({
+          name: 'stars',
+          value: starsCount,
+          ranking: this.getJudgement('stars', starsCount)
+        })
 
-      this.setState({
-        statisticsValues: [
-          {
-            name: 'createdAt',
-            value: createdAtMoment.fromNow(),
-            additionalValue: createdAtMoment.format('(DD.MM.YYYY)'),
-            ranking: this.getJudgement('createdAt', currentTimestamp - createdAtTimestamp)
+        const followersValue = nextProps.userdata.followers.totalCount
+        newStatisticsValues.push({
+          name: 'followers',
+          value: followersValue,
+          ranking: this.getJudgement('followers', followersValue)
+        })
+
+        const commitsValue = nextProps.commitsTotalCount
+        newStatisticsValues.push({
+          name: 'commits',
+          value: commitsValue,
+          ranking: this.getJudgement('commits', commitsValue)
+        })
+
+        const reposValue = nextProps.userdata.repositories.totalCount
+        newStatisticsValues.push({
+          name: 'repos',
+          value: reposValue,
+          ranking: this.getJudgement('repos', reposValue)
+        })
+
+        const repositoriesContributedTo = nextProps.userdata.repositoriesContributedTo.nodes
+        const overallRanking = this.getOverallRankingValue(newStatisticsValues)
+        const maxRanking = this.getMaxRanking(newStatisticsValues)
+        const overallRankingValue = Math.round( ( overallRanking * 100 / maxRanking ) / 10) * 10;
+
+        this.setState({
+          statisticsValues: newStatisticsValues,
+          overallRanking: {
+            value: overallRanking + '/' + maxRanking,
+            ranking: overallRankingValue
           },
-          {
-            name: 'stars',
-            value: starsCount,
-            ranking: this.getJudgement('stars', starsCount)
-          },
-          {
-            name: 'followers',
-            value: followersValue,
-            ranking: this.getJudgement('followers', followersValue)
-          },
-          {
-            name: 'commits',
-            value: commitsValue,
-            ranking: this.getJudgement('commits', commitsValue)
-          },
-          {
-            name: 'repos',
-            value: reposValue,
-            ranking: this.getJudgement('repos', reposValue)
-          }
-        ],
-        overallRanking: {
-          value: this.getOverallRankingValue() + '/' + this.getMaxRanking(),
-          ranking: overallRankingValue
-        }
-      })
+          repositoriesContributedTo: repositoriesContributedTo
+        })
+      }
     } else {
       this.setState(this.getInitialState())
     }
@@ -199,10 +211,11 @@ class Statistics extends React.Component {
     return (
       <div className="row statistics justify-content-center">
         { this.state.statisticsValues.map( (statisticsValue, index) => (
-          <StatisticsBox title={this.getStatisticsTitles(statisticsValue.name)} value={statisticsValue.value}
-                         additionalValue={statisticsValue.additionalValue}
-                         ranking={statisticsValue.ranking}
-                         key={index} />
+            <StatisticsBox title={this.getStatisticsTitles(statisticsValue.name)}
+                           value={statisticsValue.value}
+                           additionalValue={statisticsValue.additionalValue}
+                           ranking={statisticsValue.ranking}
+                           key={index} />
         ) ) }
         <OverallRanking title="Overall ranking" value={this.state.overallRanking.value}
                         ranking={this.state.overallRanking.ranking}/>
