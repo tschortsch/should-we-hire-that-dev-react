@@ -21,7 +21,7 @@ class App extends React.Component {
   }
 
   fetchUserInfo = (username) => {
-    this.setState({ isLoading: true })
+    this.setState({ isLoading: true, userdata: null })
     const query = `
     query {
         user(login: "${username}") {

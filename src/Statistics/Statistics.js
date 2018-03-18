@@ -3,8 +3,44 @@ import moment from 'moment'
 import StatisticsBox from './StatisticsBox'
 import './Statistics.scss'
 
-const Statistics = ({userdata, commitsTotalCount}) => {
-  const judgementLimits = {
+class Statistics extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = this.getInitialState()
+    console.log(this.state)
+  }
+
+  getInitialState = () => {
+    return {
+      maxRanking: 0,
+      overallRanking: 0,
+      statisticsValues: {
+        createdAt: {
+          value: '-',
+          additionalValue: '',
+          ranking: 0
+        },
+        stars: {
+          value: 0,
+          ranking: 0
+        },
+        followers: {
+          value: 0,
+          ranking: 0
+        },
+        commits: {
+          value: 0,
+          ranking: 0
+        },
+        repos: {
+          value: 0,
+          ranking: 0
+        }
+      }
+    }
+  }
+
+  judgementLimits = {
     'commits': new Map([
       [100, 10000],
       [90, 8000],
@@ -67,21 +103,20 @@ const Statistics = ({userdata, commitsTotalCount}) => {
     ])
   };
 
-
-  const getRanking = (type, value, rawValue) => {
+  /*getRanking = (type, value, rawValue) => {
     if(typeof rawValue === 'undefined') {
       rawValue = value;
     }
 
-    const judgement = getJudgement(type, rawValue);
+    const judgement = this.getJudgement(type, rawValue);
     maxRanking += 100;
     overallRanking += judgement;
     return judgement
-  }
+  }*/
 
-  const getJudgement = (type, value) => {
-    if(judgementLimits.hasOwnProperty(type)) {
-      for(let [rank, limit] of judgementLimits[type]) {
+  getJudgement = (type, value) => {
+    if(this.judgementLimits.hasOwnProperty(type)) {
+      for(let [rank, limit] of this.judgementLimits[type]) {
         if(value >= limit) {
           return rank;
         }
@@ -90,62 +125,65 @@ const Statistics = ({userdata, commitsTotalCount}) => {
     return 0;
   }
 
-  let maxRanking = 0;
-  let overallRanking = 0;
-  let statisticsValues = {
-    createdAt: {
-      value: '-',
-      additionalValue: '',
-      ranking: 0
-    },
-    stars: {
-      value: 0,
-      ranking: 0
-    },
-    followers: {
-      value: 0,
-      ranking: 0
-    },
-    commits: {
-      value: 0,
-      ranking: 0
-    },
-    repos: {
-      value: 0,
-      ranking: 0
+  componentWillReceiveProps(nextProps) {
+    if ( nextProps.userdata && nextProps.commitsTotalCount ) {
+      const createdAt = new Date(nextProps.userdata.createdAt);
+      const createdAtMoment = moment(createdAt);
+      const createdAtTimestamp = createdAtMoment.unix();
+      const currentTimestamp = moment().unix();
+      const starsCount = nextProps.userdata.repositories.nodes.reduce((starsCount, repo) => {
+        return starsCount + repo.stargazers.totalCount;
+      }, 0)
+      const followersValue = nextProps.userdata.followers.totalCount
+      const commitsValue = nextProps.commitsTotalCount
+      const reposValue = nextProps.userdata.repositories.totalCount
+      this.setState({
+        statisticsValues: {
+          createdAt: {
+            value: createdAtMoment.fromNow(),
+            additionalValue: createdAtMoment.format('(DD.MM.YYYY)'),
+            ranking: this.getJudgement('createdAt', currentTimestamp - createdAtTimestamp)
+          },
+          stars: {
+            value: starsCount,
+            ranking: this.getJudgement('stars', starsCount)
+          },
+          followers: {
+            value: followersValue,
+            ranking: this.getJudgement('followers', followersValue)
+          },
+          commits: {
+            value: commitsValue,
+            ranking: this.getJudgement('commits', commitsValue)
+          },
+          repos: {
+            value: reposValue,
+            ranking: this.getJudgement('repos', reposValue)
+          }
+        }
+      })
+    } else {
+      this.setState(this.getInitialState())
     }
   }
 
-  if ( userdata && commitsTotalCount ) {
-    const createdAt = new Date(userdata.createdAt);
-    const createdAtMoment = moment(createdAt);
-    const createdAtTimestamp = createdAtMoment.unix();
-    const currentTimestamp = moment().unix();
-    statisticsValues.createdAt.value = createdAtMoment.fromNow()
-    statisticsValues.createdAt.additionalValue = createdAtMoment.format('(DD.MM.YYYY)')
-    statisticsValues.createdAt.ranking = getJudgement('createdAt', currentTimestamp - createdAtTimestamp)
-    statisticsValues.stars.value = userdata.repositories.nodes.reduce((starsCount, repo) => {
-      return starsCount + repo.stargazers.totalCount;
-    }, 0);
-    statisticsValues.stars.ranking = getJudgement('stars', statisticsValues.stars.value)
-    statisticsValues.followers.value = userdata.followers.totalCount
-    statisticsValues.followers.ranking = getJudgement('followers', statisticsValues.followers.value)
-    statisticsValues.commits.value = commitsTotalCount
-    statisticsValues.commits.ranking = getJudgement('commits', statisticsValues.commits.value)
-    statisticsValues.repos.value = userdata.repositories.totalCount
-    statisticsValues.repos.ranking = getJudgement('repos', statisticsValues.repos.value)
-
+  render() {
+    return (
+      <div className="row statistics justify-content-center">
+        <StatisticsBox title="User since" value={this.state.statisticsValues.createdAt.value}
+                       additionalValue={this.state.statisticsValues.createdAt.additionalValue}
+                       ranking={this.state.statisticsValues.createdAt.ranking}/>
+        <StatisticsBox title="Followers" value={this.state.statisticsValues.followers.value}
+                       ranking={this.state.statisticsValues.followers.ranking}/>
+        <StatisticsBox title="Total commits" value={this.state.statisticsValues.commits.value}
+                       ranking={this.state.statisticsValues.commits.ranking}/>
+        <StatisticsBox title="Public repos" value={this.state.statisticsValues.repos.value}
+                       ranking={this.state.statisticsValues.repos.ranking}/>
+        <StatisticsBox title="Stars" value={this.state.statisticsValues.stars.value}
+                       ranking={this.state.statisticsValues.stars.ranking}/>
+      </div>
+    )
   }
-
-  return (
-    <div className="row statistics justify-content-center">
-      <StatisticsBox title="User since" value={statisticsValues.createdAt.value} additionalValue={statisticsValues.createdAt.additionalValue} ranking={statisticsValues.createdAt.ranking}/>
-      <StatisticsBox title="Followers" value={statisticsValues.followers.value} ranking={statisticsValues.followers.ranking}/>
-      <StatisticsBox title="Total commits" value={statisticsValues.commits.value} ranking={statisticsValues.commits.ranking}/>
-      <StatisticsBox title="Public repos" value={statisticsValues.repos.value} ranking={statisticsValues.repos.value}/>
-      <StatisticsBox title="Stars" value={statisticsValues.stars.value} ranking={statisticsValues.stars.ranking}/>
-    </div>
-  )
 }
 
 export default Statistics
