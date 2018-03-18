@@ -1,6 +1,5 @@
 import React from 'react';
 import './bootstrap/bootstrap.scss'
-import './App.scss';
 import moment from 'moment'
 import GitHubAuth from "./auth/GitHubAuth";
 import GitHubUsernameInput from './GitHubUsernameInput/GitHubUsernameInput';
@@ -150,7 +149,7 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <div className="container">
+        <div className="container my-5">
           <div className="row justify-content-center">
             <GitHubAuth accessToken={this.state.accessToken} />
             <GitHubUsernameInput fetchUserInfo={this.fetchUserInfo} isLoading={this.state.isLoading} />
