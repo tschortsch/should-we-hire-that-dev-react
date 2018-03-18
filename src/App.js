@@ -90,7 +90,7 @@ class App extends React.Component {
         } else {
           this.setState({ errorMessage: 'Something went wrong!' })
         }
-        this.setState({ isLoading: false, userdata: null })
+        this.setState({ isLoading: false, userdata: null, commitsTotalCount: null })
         return;
       }
       responseRaw.json().then((userResponse) => {
