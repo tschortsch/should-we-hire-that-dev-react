@@ -17,7 +17,7 @@ class App extends React.Component {
       userdata: null,
       commitsTotalCount: null,
       errorMessage: '',
-      username: match.params.username
+      username: match.params.username ? match.params.username : ''
     }
   }
 
