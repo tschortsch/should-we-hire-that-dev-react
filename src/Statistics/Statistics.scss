@@ -3,6 +3,10 @@
 @import "~bootstrap/scss/mixins";
 
 .statistics {
+  h3 {
+    font-size: $h5-font-size;
+    margin-bottom: 0;
+  }
   p {
     margin-bottom: 5px;
   }
