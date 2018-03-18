@@ -8,7 +8,7 @@ class GitHubUsernameInput extends React.Component {
   constructor({ match }) {
     super()
     this.state = {
-      username: match.params.username
+      username: match.params.username ? match.params.username : ''
     }
   }
 
