@@ -3,7 +3,7 @@ import moment from 'moment'
 import StatisticsBox from './StatisticsBox'
 import './Statistics.scss'
 
-const Statistics = ({userdata, commitsTotalCount}) => {
+const Statistics = ({userdata, isLoading, commitsTotalCount}) => {
   const judgementLimits = {
     'commits': new Map([
       [100, 10000],
@@ -53,7 +53,7 @@ const Statistics = ({userdata, commitsTotalCount}) => {
       [20, 10],
       [10, 5]
     ]),
-    'user-since': new Map([
+    'createdAt': new Map([
       [100, 6 * (365 * 24 * 60 * 60)], // 6 years
       [90, 5 * (365 * 24 * 60 * 60)],
       [80, 4.5 * (365 * 24 * 60 * 60)],
@@ -66,18 +66,7 @@ const Statistics = ({userdata, commitsTotalCount}) => {
       [10, (365 * 24 * 60 * 60)]
     ])
   };
-  let maxRanking = 0;
-  let overallRanking = 0;
 
-  const createdAt = new Date(userdata.createdAt);
-  const createdAtMoment = moment(createdAt);
-  const createdAtTimestamp = createdAtMoment.unix();
-  const currentTimestamp = moment().unix();
-  const createdAtRawValue = currentTimestamp - createdAtTimestamp
-  let starsCount = 0;
-  userdata.repositories.nodes.forEach(repo => {
-    starsCount += repo.stargazers.totalCount;
-  });
 
   const getRanking = (type, value, rawValue) => {
     if(typeof rawValue === 'undefined') {
@@ -101,13 +90,60 @@ const Statistics = ({userdata, commitsTotalCount}) => {
     return 0;
   }
 
+  let maxRanking = 0;
+  let overallRanking = 0;
+  let statisticsValues = {
+    createdAt: {
+      value: '-',
+      additionalValue: '',
+      ranking: 0
+    },
+    stars: {
+      value: 0,
+      ranking: 0
+    },
+    followers: {
+      value: 0,
+      ranking: 0
+    },
+    commits: {
+      value: 0,
+      ranking: 0
+    },
+    repos: {
+      value: 0,
+      ranking: 0
+    }
+  }
+
+  if ( userdata && commitsTotalCount ) {
+    const createdAt = new Date(userdata.createdAt);
+    const createdAtMoment = moment(createdAt);
+    const createdAtTimestamp = createdAtMoment.unix();
+    const currentTimestamp = moment().unix();
+    statisticsValues.createdAt.value = createdAtMoment.fromNow()
+    statisticsValues.createdAt.additionalValue = createdAtMoment.format('(DD.MM.YYYY)')
+    statisticsValues.createdAt.ranking = getJudgement('createdAt', currentTimestamp - createdAtTimestamp)
+    statisticsValues.stars.value = userdata.repositories.nodes.reduce((starsCount, repo) => {
+      return starsCount + repo.stargazers.totalCount;
+    }, 0);
+    statisticsValues.stars.ranking = getJudgement('stars', statisticsValues.stars.value)
+    statisticsValues.followers.value = userdata.followers.totalCount
+    statisticsValues.followers.ranking = getJudgement('followers', statisticsValues.followers.value)
+    statisticsValues.commits.value = commitsTotalCount
+    statisticsValues.commits.ranking = getJudgement('commits', statisticsValues.commits.value)
+    statisticsValues.repos.value = userdata.repositories.totalCount
+    statisticsValues.repos.ranking = getJudgement('repos', statisticsValues.repos.value)
+
+  }
+
   return (
     <div className="row statistics justify-content-center">
-      <StatisticsBox title="User since" value={createdAtMoment.fromNow()} additionalValue={createdAtMoment.format('(DD.MM.YYYY)')} ranking={getJudgement('user-since', createdAtRawValue)}/>
-      <StatisticsBox title="Followers" value={userdata.followers.totalCount} ranking={getJudgement('followers', userdata.followers.totalCount)}/>
-      <StatisticsBox title="Total commits" value={commitsTotalCount} ranking={getJudgement('commits', commitsTotalCount)}/>
-      <StatisticsBox title="Public repos" value={userdata.repositories.totalCount} ranking={getJudgement('repos', userdata.repositories.totalCount)}/>
-      <StatisticsBox title="Stars" value={starsCount} ranking={getJudgement('stars', starsCount)}/>
+      <StatisticsBox title="User since" value={statisticsValues.createdAt.value} additionalValue={statisticsValues.createdAt.additionalValue} ranking={statisticsValues.createdAt.ranking}/>
+      <StatisticsBox title="Followers" value={statisticsValues.followers.value} ranking={statisticsValues.followers.ranking}/>
+      <StatisticsBox title="Total commits" value={statisticsValues.commits.value} ranking={statisticsValues.commits.ranking}/>
+      <StatisticsBox title="Public repos" value={statisticsValues.repos.value} ranking={statisticsValues.repos.value}/>
+      <StatisticsBox title="Stars" value={statisticsValues.stars.value} ranking={statisticsValues.stars.ranking}/>
     </div>
   )
 }
