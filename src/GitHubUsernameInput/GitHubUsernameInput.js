@@ -8,8 +8,14 @@ class GitHubUsernameInput extends React.Component {
   constructor({ match }) {
     super()
     this.state = {
-      username: match.params.username ? match.params.username : ''
+      username: match.params.username ? match.params.username : '',
+      placeholderTimeout: null,
+      placeholder: 'that dev'
     }
+  }
+
+  componentDidMount() {
+    this.startUsernameAnimation()
   }
 
   handleUsernameChange = (e) => {
@@ -24,6 +30,129 @@ class GitHubUsernameInput extends React.Component {
     this.props.history.push('/' + this.state.username)
   }
 
+  /**
+   * Username Placeholder Animation
+   */
+  startUsernameAnimation = () => {
+    this.clearPlaceholderTimeout()
+    const placeholderTimeout = setTimeout(this.usernameAnimation, 5000);
+    this.setState({
+      placeholderTimeout: placeholderTimeout
+    })
+  }
+
+  clearPlaceholderTimeout = () => {
+    if(this.state.placeholderTimeout) {
+      clearTimeout(this.state.placeholderTimeout);
+      this.setState({
+        placeholderTimeout: null
+      })
+    }
+  }
+
+  handleUsernameFocus = (e) => {
+    this.clearPlaceholderTimeout()
+    this.setState({
+      placeholder: 'that dev'
+    })
+  }
+
+  handleUsernameBlur = (e) => {
+    if(e.target.value === '') {
+      this.startUsernameAnimation()
+    }
+  }
+
+  usernameAnimation = () => {
+    new Promise((resolve) => {
+      this.setState({
+        placeholder: ''
+      })
+      this.type('tschortsch', resolve);
+    }).then(() => {
+      this.clearPlaceholderTimeout();
+      const placeholderTimeout = setTimeout(() => {
+        new Promise((resolve) => {
+          this.erase(resolve);
+        }).then(() => {
+          new Promise((resolve) => {
+            this.clearPlaceholderTimeout();
+            const placeholderTimeout = setTimeout(() => {
+              this.type('GitHub username', resolve);
+            }, 1000);
+            this.setState({
+              placeholderTimeout: placeholderTimeout
+            })
+          }).then(() => {
+            this.clearPlaceholderTimeout();
+            const placeholderTimeout = setTimeout(() => {
+              new Promise((resolve) => {
+                this.erase(resolve);
+              }).then(() => {
+                this.clearPlaceholderTimeout();
+                const placeholderTimeout = setTimeout(() => {
+                  this.setState({
+                    placeholder: 'that dev'
+                  })
+                }, 1000);
+                this.setState({
+                  placeholderTimeout: placeholderTimeout
+                })
+              });
+            }, 2000);
+            this.setState({
+              placeholderTimeout: placeholderTimeout
+            })
+          });
+        });
+      }, 2000);
+      this.setState({
+        placeholderTimeout: placeholderTimeout
+      })
+    });
+  }
+
+  type = (text, resolve) => {
+    let textLength = text.length;
+
+    if(textLength > 0) {
+      const nextCharacter = text.charAt(0);
+      const remainingText = text.substr(1, textLength);
+      this.setState({
+        placeholder: this.state.placeholder + nextCharacter
+      })
+      this.clearPlaceholderTimeout();
+      const placeholderTimeout = setTimeout(() => {
+        this.type(remainingText, resolve);
+      }, 300);
+      this.setState({
+        placeholderTimeout: placeholderTimeout
+      })
+    } else {
+      this.clearPlaceholderTimeout();
+      resolve();
+    }
+  }
+
+  erase = (resolve) => {
+    const currentPlaceholderText = this.state.placeholder;
+    this.setState({
+      placeholder: currentPlaceholderText.substr(0, currentPlaceholderText.length - 1)
+    })
+    if(this.state.placeholder.length > 0) {
+      this.clearPlaceholderTimeout();
+      const placeholderTimeout = setTimeout(() => {
+        this.erase(resolve);
+      }, 150);
+      this.setState({
+        placeholderTimeout: placeholderTimeout
+      })
+    } else {
+      this.clearPlaceholderTimeout();
+      resolve();
+    }
+  }
+
   render() {
     return (
       <div className="col-xl-8 col-lg-10">
@@ -34,10 +163,12 @@ class GitHubUsernameInput extends React.Component {
               <div className="flex-item">
                 <div className="username-input-wrapper">
                   <label htmlFor="username" className="sr-only">Please enter GitHub username:</label>
-                  <input type="search" name="username" id="username" className="form-control" placeholder="that dev"
+                  <input type="search" name="username" id="username" className="form-control" placeholder={this.state.placeholder}
                          value={this.state.username}
                          onChange={this.handleUsernameChange}
                          disabled={this.props.isLoading}
+                         onFocus={this.handleUsernameFocus}
+                         onBlur={this.handleUsernameBlur}
                   />
                   <div className="questionmark">?</div>
                 </div>
