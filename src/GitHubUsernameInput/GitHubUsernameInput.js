@@ -26,7 +26,7 @@ class GitHubUsernameInput extends React.Component {
   render() {
     return (
       <div className="col-xl-8 col-lg-10">
-        <form className="form-inline mb-1" onSubmit={ ! this.props.isLoading ? this.submitUsernameForm : e => e.preventDefault() }>
+        <form className="form-inline mb-3" onSubmit={ ! this.props.isLoading ? this.submitUsernameForm : e => e.preventDefault() }>
           <div className="form-group">
             <div className="question">
               <div className="label flex-item">Should we hire</div>

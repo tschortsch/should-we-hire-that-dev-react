@@ -150,24 +150,26 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="App container">
-        <div className="row justify-content-center">
-          <GitHubAuth accessToken={this.state.accessToken} />
-          <GitHubUsernameInput fetchUserInfo={this.fetchUserInfo} isLoading={this.state.isLoading} />
+      <div className="App">
+        <div className="container">
+          <div className="row justify-content-center">
+            <GitHubAuth accessToken={this.state.accessToken} />
+            <GitHubUsernameInput fetchUserInfo={this.fetchUserInfo} isLoading={this.state.isLoading} />
 
-          <div className="col-xl-8 col-lg-10 text-center">
-            { this.state.errorMessage !== '' ? <ErrorContainer errorMessage={this.state.errorMessage}/> : null }
-            { ! this.state.accessToken ?
-              <p>
-                Since the <a href="https://developer.github.com/v4/guides/resource-limitations/">GitHub API rate limits</a> are pretty low for unauthorized requests should sign in with your GitHub account first.
-                The Authorization only grants this website to request data which is already public anyway. So, no worries!
-              </p>
-              : null }
-            <UserInfo userdata={this.state.userdata} isLoading={this.state.isLoading} />
-            { this.state.userdata || this.state.isLoading ?
-              <Statistics userdata={this.state.userdata} commitsTotalCount={this.state.commitsTotalCount} />
-              : null
-            }
+            <div className="col-xl-8 col-lg-10 text-center">
+              { this.state.errorMessage !== '' ? <ErrorContainer errorMessage={this.state.errorMessage}/> : null }
+              { ! this.state.accessToken ?
+                <p>
+                  Since the <a href="https://developer.github.com/v4/guides/resource-limitations/">GitHub API rate limits</a> are pretty low for unauthorized requests should sign in with your GitHub account first.
+                  The Authorization only grants this website to request data which is already public anyway. So, no worries!
+                </p>
+                : null }
+              <UserInfo userdata={this.state.userdata} isLoading={this.state.isLoading} />
+              { this.state.userdata || this.state.isLoading ?
+                <Statistics userdata={this.state.userdata} commitsTotalCount={this.state.commitsTotalCount} />
+                : null
+              }
+            </div>
           </div>
         </div>
       </div>
