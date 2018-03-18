@@ -219,6 +219,7 @@ class Statistics extends React.Component {
         <OverallRanking title="Overall ranking"
                         value={this.state.overallRanking.value}
                         maxRanking={this.state.overallRanking.maxRanking}/>
+        <LanguageStatistics repositoriesContributedTo={this.state.repositoriesContributedTo}/>
       </div>
     )
   }
