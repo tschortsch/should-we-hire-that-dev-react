@@ -1,47 +1,65 @@
 import React from 'react'
 import moment from 'moment'
 import StatisticsBox from './StatisticsBox'
+import OverallRanking from './OverallRanking'
 import './Statistics.scss'
 
 class Statistics extends React.Component {
-  constructor(props) {
-    super(props)
+  constructor() {
+    super()
     this.state = this.getInitialState()
-    console.log(this.state)
   }
 
   getInitialState = () => {
     return {
-      maxRanking: 0,
-      overallRanking: 0,
-      statisticsValues: {
-        createdAt: {
+      statisticsValues: [
+        {
+          name: 'createdAt',
           value: '-',
           additionalValue: '',
           ranking: 0
         },
-        stars: {
+        {
+          name: 'stars',
           value: 0,
           ranking: 0
         },
-        followers: {
+        {
+          name: 'followers',
           value: 0,
           ranking: 0
         },
-        commits: {
+        {
+          name: 'commits',
           value: 0,
           ranking: 0
         },
-        repos: {
+        {
+          name: 'repos',
           value: 0,
           ranking: 0
         }
+      ],
+      overallRanking: {
+        value: '-',
+        ranking: 0
       }
     }
   }
 
+  getStatisticsTitles = (name) => {
+    const statisticsTitles = {
+      createdAt: 'User since',
+      stars: 'Stars',
+      followers: 'Followers',
+      commits: 'Total commits',
+      repos: 'Public repos'
+    }
+    return statisticsTitles[name]
+  }
+
   judgementLimits = {
-    'commits': new Map([
+    commits: new Map([
       [100, 10000],
       [90, 8000],
       [80, 6000],
@@ -53,7 +71,7 @@ class Statistics extends React.Component {
       [20, 300],
       [10, 100]
     ]),
-    'followers': new Map([
+    followers: new Map([
       [100, 1000],
       [90, 600],
       [80, 300],
@@ -65,7 +83,7 @@ class Statistics extends React.Component {
       [20, 10],
       [10, 5]
     ]),
-    'repos': new Map([
+    repos: new Map([
       [100, 100],
       [90, 80],
       [80, 60],
@@ -77,7 +95,7 @@ class Statistics extends React.Component {
       [20, 10],
       [10, 5]
     ]),
-    'stars': new Map([
+    stars: new Map([
       [100, 250],
       [90, 200],
       [80, 150],
@@ -89,7 +107,7 @@ class Statistics extends React.Component {
       [20, 10],
       [10, 5]
     ]),
-    'createdAt': new Map([
+    createdAt: new Map([
       [100, 6 * (365 * 24 * 60 * 60)], // 6 years
       [90, 5 * (365 * 24 * 60 * 60)],
       [80, 4.5 * (365 * 24 * 60 * 60)],
@@ -103,16 +121,14 @@ class Statistics extends React.Component {
     ])
   };
 
-  /*getRanking = (type, value, rawValue) => {
-    if(typeof rawValue === 'undefined') {
-      rawValue = value;
-    }
-
-    const judgement = this.getJudgement(type, rawValue);
-    maxRanking += 100;
-    overallRanking += judgement;
-    return judgement
-  }*/
+  getOverallRankingValue = () => {
+    return this.state.statisticsValues.reduce((rankingAccumulator, statisticsValue) => {
+      return rankingAccumulator + statisticsValue.ranking
+    }, 0)
+  }
+  getMaxRanking = () => {
+    return 100 * this.state.statisticsValues.length
+  }
 
   getJudgement = (type, value) => {
     if(this.judgementLimits.hasOwnProperty(type)) {
@@ -137,29 +153,41 @@ class Statistics extends React.Component {
       const followersValue = nextProps.userdata.followers.totalCount
       const commitsValue = nextProps.commitsTotalCount
       const reposValue = nextProps.userdata.repositories.totalCount
+
+      const overallRankingValue = Math.round(this.getOverallRankingValue() * 100 / this.getMaxRanking() / 10) * 10;
+
       this.setState({
-        statisticsValues: {
-          createdAt: {
+        statisticsValues: [
+          {
+            name: 'createdAt',
             value: createdAtMoment.fromNow(),
             additionalValue: createdAtMoment.format('(DD.MM.YYYY)'),
             ranking: this.getJudgement('createdAt', currentTimestamp - createdAtTimestamp)
           },
-          stars: {
+          {
+            name: 'stars',
             value: starsCount,
             ranking: this.getJudgement('stars', starsCount)
           },
-          followers: {
+          {
+            name: 'followers',
             value: followersValue,
             ranking: this.getJudgement('followers', followersValue)
           },
-          commits: {
+          {
+            name: 'commits',
             value: commitsValue,
             ranking: this.getJudgement('commits', commitsValue)
           },
-          repos: {
+          {
+            name: 'repos',
             value: reposValue,
             ranking: this.getJudgement('repos', reposValue)
           }
+        ],
+        overallRanking: {
+          value: this.getOverallRankingValue() + '/' + this.getMaxRanking(),
+          ranking: overallRankingValue
         }
       })
     } else {
@@ -170,17 +198,14 @@ class Statistics extends React.Component {
   render() {
     return (
       <div className="row statistics justify-content-center">
-        <StatisticsBox title="User since" value={this.state.statisticsValues.createdAt.value}
-                       additionalValue={this.state.statisticsValues.createdAt.additionalValue}
-                       ranking={this.state.statisticsValues.createdAt.ranking}/>
-        <StatisticsBox title="Followers" value={this.state.statisticsValues.followers.value}
-                       ranking={this.state.statisticsValues.followers.ranking}/>
-        <StatisticsBox title="Total commits" value={this.state.statisticsValues.commits.value}
-                       ranking={this.state.statisticsValues.commits.ranking}/>
-        <StatisticsBox title="Public repos" value={this.state.statisticsValues.repos.value}
-                       ranking={this.state.statisticsValues.repos.ranking}/>
-        <StatisticsBox title="Stars" value={this.state.statisticsValues.stars.value}
-                       ranking={this.state.statisticsValues.stars.ranking}/>
+        { this.state.statisticsValues.map( (statisticsValue, index) => (
+          <StatisticsBox title={this.getStatisticsTitles(statisticsValue.name)} value={statisticsValue.value}
+                         additionalValue={statisticsValue.additionalValue}
+                         ranking={statisticsValue.ranking}
+                         key={index} />
+        ) ) }
+        <OverallRanking title="Overall ranking" value={this.state.overallRanking.value}
+                        ranking={this.state.overallRanking.ranking}/>
       </div>
     )
   }

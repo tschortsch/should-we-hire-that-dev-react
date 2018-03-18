@@ -1,7 +1,7 @@
 import React from 'react'
 
 const StatisticsBox = ({ title, value, additionalValue = '', ranking }) => (
-  <div className={`col-md-6 ${ ranking > 0 ? 'rank-' + ranking : ''  }`} id="user-since">
+  <div className={`col-md-6 ${ ranking > 0 ? 'rank-' + ranking : ''  }`}>
     <h3>{title}</h3>
     <p className="value">{value}</p>
     {additionalValue !== '' ?
