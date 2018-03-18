@@ -2,7 +2,7 @@ import React from 'react';
 import './bootstrap/bootstrap.scss'
 import moment from 'moment'
 import { withRouter } from 'react-router-dom'
-import GitHubAuth from "./auth/GitHubAuth";
+import GitHubAuth from "./GitHubAuth/GitHubAuth";
 import GitHubUsernameInput from './GitHubUsernameInput/GitHubUsernameInput';
 import ErrorContainer from "./ErrorContainer/ErrorContainer";
 import UserInfo from "./UserInfo/UserInfo";
